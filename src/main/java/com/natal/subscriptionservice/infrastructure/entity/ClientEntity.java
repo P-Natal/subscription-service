@@ -11,13 +11,13 @@ import javax.persistence.Table;
 @Table(name = "client")
 public class ClientEntity extends EntityClass {
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private String document;
 
-    @Column
+    @Column(nullable = false)
     private String status;
 
     public ClientEntity() {
