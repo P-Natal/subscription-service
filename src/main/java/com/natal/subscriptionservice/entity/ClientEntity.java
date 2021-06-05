@@ -1,18 +1,15 @@
 package com.natal.subscriptionservice.entity;
 
 import lombok.Getter;
-import org.springframework.data.annotation.CreatedDate;
 
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
 @Getter
-public class ClientEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int id;
+@Table(name = "client")
+public class ClientEntity extends EntityClass {
 
     @Column
     private String name;
@@ -23,19 +20,7 @@ public class ClientEntity {
     @Column
     private String status;
 
-    @Column
-    @CreatedDate
-    private Date registryDate;
-
     public ClientEntity() {
-    }
-
-    public ClientEntity(int id, String name, String document, String status, Date registryDate) {
-        this.id = id;
-        this.name = name;
-        this.document = document;
-        this.status = status;
-        this.registryDate = registryDate;
     }
 
     public ClientEntity(String name, String document, String status) {
@@ -51,5 +36,16 @@ public class ClientEntity {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "ClientEntity{" +
+                "id='" + this.getId() + '\'' +
+                "name='" + name + '\'' +
+                ", document='" + document + '\'' +
+                ", status='" + status + '\'' +
+                ", registry_date='" + this.getRegistryDate() + '\'' +
+                '}';
     }
 }

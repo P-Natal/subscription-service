@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface SubscriptionService {
     public void create(ClientTO clientTO);
-    public void delete(ClientTO clientTO);
+    public ClientTO getClientByDocument(String document);
+    public void delete(String document);
     public void update(ClientTO clientTO);
 }
