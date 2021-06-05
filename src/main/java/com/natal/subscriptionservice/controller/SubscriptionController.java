@@ -19,12 +19,12 @@ public class SubscriptionController {
         subscriptionService.create(clientTO);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{document}")
     public void delete(@PathVariable("document") String document){
         subscriptionService.delete(document);
     }
 
-    @GetMapping
+    @GetMapping("/{document}")
     public void get(@PathVariable("document") String document){
         subscriptionService.getClientByDocument(document);
     }

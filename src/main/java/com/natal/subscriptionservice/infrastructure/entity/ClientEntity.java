@@ -1,4 +1,4 @@
-package com.natal.subscriptionservice.entity;
+package com.natal.subscriptionservice.infrastructure.entity;
 
 import lombok.Getter;
 
