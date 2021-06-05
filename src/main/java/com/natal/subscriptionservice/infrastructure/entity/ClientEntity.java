@@ -46,6 +46,7 @@ public class ClientEntity extends EntityClass {
                 ", document='" + document + '\'' +
                 ", status='" + status + '\'' +
                 ", registry_date='" + this.getRegistryDate() + '\'' +
+                ", last_update='" + this.getLast_update() + '\'' +
                 '}';
     }
 }

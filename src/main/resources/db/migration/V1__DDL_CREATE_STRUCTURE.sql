@@ -5,4 +5,5 @@ create table "public"."client"
     document        varchar(20) not null,
     status          varchar(30) not null,
     registry_date   timestamp not null
+    last_update     timestamp not null
 );

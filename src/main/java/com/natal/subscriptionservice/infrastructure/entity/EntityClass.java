@@ -1,6 +1,7 @@
 package com.natal.subscriptionservice.infrastructure.entity;
 
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -16,9 +17,13 @@ public abstract class EntityClass implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @CreatedDate
+    @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date registryDate;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date last_update;
 
     public Long getId() {
         return id;
@@ -28,5 +33,7 @@ public abstract class EntityClass implements Serializable {
         return registryDate;
     }
 
-
+    public Date getLast_update() {
+        return last_update;
+    }
 }
