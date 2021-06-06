@@ -4,6 +4,6 @@ create table "public"."client"
     name            varchar(50) not null,
     document        varchar(20) not null,
     status          varchar(30) not null,
-    registry_date   timestamp not null
+    registry_date   timestamp not null,
     last_update     timestamp not null
 );

@@ -1,3 +1,5 @@
+server.port: 8082
+
 spring:
   jpa:
     properties:
@@ -13,3 +15,6 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
   flyway:
     enabled: true
+
+eligibility:
+  host: localhost:8081

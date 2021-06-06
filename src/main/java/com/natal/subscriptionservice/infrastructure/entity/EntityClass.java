@@ -23,7 +23,7 @@ public abstract class EntityClass implements Serializable {
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    private Date last_update;
+    private Date lastUpdate;
 
     public Long getId() {
         return id;
@@ -33,7 +33,7 @@ public abstract class EntityClass implements Serializable {
         return registryDate;
     }
 
-    public Date getLast_update() {
-        return last_update;
+    public Date getLastUpdate() {
+        return lastUpdate;
     }
 }

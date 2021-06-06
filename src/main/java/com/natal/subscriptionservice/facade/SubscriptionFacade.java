@@ -32,7 +32,7 @@ public class SubscriptionFacade implements SubscriptionService {
             }
         }
         else {
-            log.warn("Documento {} não está elegível para cadastro", doc);
+            log.warn("Cliente com documento {} não está elegível para cadastro", doc);
         }
     }
 
