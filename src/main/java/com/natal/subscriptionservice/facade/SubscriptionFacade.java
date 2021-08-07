@@ -28,7 +28,11 @@ public class SubscriptionFacade implements SubscriptionService {
             if(existingClient==null){
                 ClientEntity clientEntity = new ClientEntity(clientTO.getName(), doc);
                 clientEntity.setStatus("ATIVO");
+                log.info("Persistindo novo cliente: {}", clientEntity.toString());
                 repository.save(clientEntity);
+            }
+            else {
+                log.warn("Cliente com documento {} já existe", doc);
             }
         }
         else {
@@ -64,14 +68,14 @@ public class SubscriptionFacade implements SubscriptionService {
     private ClientTO findClient(String document) {
         ClientTO clientTO = new ClientTO();
         try{
-            ClientEntity clientPersisted = repository.findByDocument(clientTO.getDocument());
+            ClientEntity clientPersisted = repository.findByDocument(document);
             if (clientPersisted !=null){
                 clientTO.setName(clientPersisted.getName());
                 clientTO.setDocument(clientPersisted.getDocument());
                 clientTO.setStatus(clientPersisted.getStatus());
             }
             else {
-                log.warn("Cliente com documento {} não encontrado!", clientTO.getDocument());
+                log.warn("Cliente com documento {} não encontrado!", document);
                 clientTO = null;
             }
         }catch (Exception e){

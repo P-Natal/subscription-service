@@ -14,8 +14,14 @@ public class SubscriptionController {
     @Autowired
     private SubscriptionService subscriptionService;
 
+    @GetMapping("/{document}")
+    public void get(@PathVariable("document") String document){
+        subscriptionService.getClientByDocument(document);
+    }
+
     @PostMapping
     public void create(@RequestBody ClientTO clientTO){
+        log.info("Recebendo request de criação de cliente: {}", clientTO.toString());
         subscriptionService.create(clientTO);
     }
 
@@ -24,8 +30,4 @@ public class SubscriptionController {
         subscriptionService.delete(document);
     }
 
-    @GetMapping("/{document}")
-    public void get(@PathVariable("document") String document){
-        subscriptionService.getClientByDocument(document);
-    }
 }
