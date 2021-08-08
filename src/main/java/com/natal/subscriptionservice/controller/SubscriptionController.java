@@ -15,8 +15,8 @@ public class SubscriptionController {
     private SubscriptionService subscriptionService;
 
     @GetMapping("/{document}")
-    public void get(@PathVariable("document") String document){
-        subscriptionService.getClientByDocument(document);
+    public ClientTO get(@PathVariable("document") String document){
+        return subscriptionService.getClientByDocument(document);
     }
 
     @PostMapping
