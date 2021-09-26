@@ -1,5 +1,7 @@
 package com.natal.subscriptionservice.controller;
 
+import com.natal.subscriptionservice.communication.EligibilityResponse;
+import com.natal.subscriptionservice.controller.dto.ClientEligibilityTO;
 import com.natal.subscriptionservice.controller.dto.ClientTO;
 import com.natal.subscriptionservice.service.SubscriptionService;
 import lombok.extern.slf4j.Slf4j;
@@ -30,4 +32,13 @@ public class SubscriptionController {
         subscriptionService.delete(document);
     }
 
+    @GetMapping("/{document}/eligibility")
+    public ClientEligibilityTO getEligibility(@PathVariable("document") String document){
+        return subscriptionService.getClientEligibilityByDocument(document);
+    }
+
+    @PostMapping("/{document}/eligibility")
+    public void setEligibility(@PathVariable("document") String document, @RequestBody ClientEligibilityTO clientEligibilityTO){
+        subscriptionService.setClientEligibility(document, clientEligibilityTO);
+    }
 }
