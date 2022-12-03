@@ -5,12 +5,15 @@ import com.natal.subscriptionservice.communication.EligibilityClient;
 import com.natal.subscriptionservice.communication.EligibilityResponse;
 import com.natal.subscriptionservice.controller.dto.ClientEligibilityTO;
 import com.natal.subscriptionservice.controller.dto.ClientTO;
+import com.natal.subscriptionservice.domain.Client;
 import com.natal.subscriptionservice.infrastructure.entity.ClientEntity;
 import com.natal.subscriptionservice.infrastructure.repository.ClientRepository;
 import com.natal.subscriptionservice.service.SubscriptionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -26,7 +29,7 @@ public class SubscriptionFacade implements SubscriptionService {
     public void create(ClientTO clientTO) {
         String doc = clientTO.getDocument();
 
-        if (eligibilityClient.getEligibility(doc).isEligible()){
+//        if (eligibilityClient.getEligibility(doc).isEligible()){
             ClientTO existingClient = findClient(doc);
             if(existingClient==null){
                 ClientEntity clientEntity = new ClientEntity(clientTO.getName(), doc);
@@ -37,10 +40,10 @@ public class SubscriptionFacade implements SubscriptionService {
             else {
                 log.warn("Cliente com documento {} já existe", doc);
             }
-        }
-        else {
-            log.warn("Cliente com documento {} não está elegível para cadastro", doc);
-        }
+//        }
+//        else {
+//            log.warn("Cliente com documento {} não está elegível para cadastro", doc);
+//        }
     }
 
     @Override
@@ -64,8 +67,19 @@ public class SubscriptionFacade implements SubscriptionService {
     }
 
     @Override
-    public void update(ClientTO clientTO) {
+    public void update(Long id, ClientTO clientTO) {
+        String doc = clientTO.getDocument();
+        Optional<ClientEntity> clientPersisted = repository.findById(id);
 
+        if (clientPersisted.isPresent()){
+            clientPersisted.get().setName(clientTO.getName());
+            clientPersisted.get().setDocument(clientTO.getDocument());
+            clientPersisted.get().setStatus(clientTO.getStatus());
+            repository.save(clientPersisted.get());
+        }
+        else {
+            log.warn("Cliente com documento {} não esta cadastrado", doc);
+        }
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.natal.subscriptionservice.controller;
 import com.natal.subscriptionservice.communication.EligibilityResponse;
 import com.natal.subscriptionservice.controller.dto.ClientEligibilityTO;
 import com.natal.subscriptionservice.controller.dto.ClientTO;
+import com.natal.subscriptionservice.controller.dto.ClientUpdateTO;
 import com.natal.subscriptionservice.service.SubscriptionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,12 @@ public class SubscriptionController {
         subscriptionService.create(clientTO);
     }
 
+    @PatchMapping("/{id}")
+    public void update(@PathVariable("id") Long id, @RequestBody ClientTO clientTO){
+        log.info("Recebendo request de atualizacao de cliente: {}", clientTO.toString());
+        subscriptionService.update(id, clientTO);
+    }
+
     @DeleteMapping("/{document}")
     public void delete(@PathVariable("document") String document){
         subscriptionService.delete(document);
@@ -37,7 +44,7 @@ public class SubscriptionController {
         return subscriptionService.getClientEligibilityByDocument(document);
     }
 
-    @PostMapping("/{document}/eligibility")
+    @PutMapping("/{document}/eligibility")
     public void setEligibility(@PathVariable("document") String document, @RequestBody ClientEligibilityTO clientEligibilityTO){
         subscriptionService.setClientEligibility(document, clientEligibilityTO);
     }

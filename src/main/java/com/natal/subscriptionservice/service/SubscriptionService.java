@@ -10,7 +10,7 @@ public interface SubscriptionService {
     public void create(ClientTO clientTO);
     public ClientTO getClientByDocument(String document);
     public void delete(String document);
-    public void update(ClientTO clientTO);
+    public void update(Long id, ClientTO clientTO);
     ClientEligibilityTO getClientEligibilityByDocument(String document);
     void setClientEligibility(String document, ClientEligibilityTO clientEligibilityTO);
 }

@@ -38,6 +38,14 @@ public class ClientEntity extends EntityClass {
         this.status = status;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDocument(String document) {
+        this.document = document;
+    }
+
     @Override
     public String toString() {
         return "ClientEntity{" +
