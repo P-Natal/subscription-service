@@ -10,3 +10,11 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USERNAME=postgres
     container_name: postgres_subscription_service
+
+  subscription-service:
+    image: natal/subscription-service:1.0
+    ports:
+      - "8082:8082"
+    container_name: subscription_service
+    depends_on:
+      - postgres
