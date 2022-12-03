@@ -5,8 +5,9 @@ import com.natal.subscriptionservice.communication.EligibilityClient;
 import com.natal.subscriptionservice.communication.EligibilityResponse;
 import com.natal.subscriptionservice.controller.dto.ClientEligibilityTO;
 import com.natal.subscriptionservice.controller.dto.ClientTO;
-import com.natal.subscriptionservice.domain.Client;
+import com.natal.subscriptionservice.infrastructure.entity.AddressEntity;
 import com.natal.subscriptionservice.infrastructure.entity.ClientEntity;
+import com.natal.subscriptionservice.infrastructure.repository.AddressRepository;
 import com.natal.subscriptionservice.infrastructure.repository.ClientRepository;
 import com.natal.subscriptionservice.service.SubscriptionService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,10 @@ import java.util.Optional;
 public class SubscriptionFacade implements SubscriptionService {
 
     @Autowired
-    private ClientRepository repository;
+    private ClientRepository clientRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Autowired
     private EligibilityClient eligibilityClient;
@@ -32,10 +36,11 @@ public class SubscriptionFacade implements SubscriptionService {
 //        if (eligibilityClient.getEligibility(doc).isEligible()){
             ClientTO existingClient = findClient(doc);
             if(existingClient==null){
-                ClientEntity clientEntity = new ClientEntity(clientTO.getName(), doc);
-                clientEntity.setStatus("ATIVO");
+                AddressEntity addressEntity = new AddressEntity(clientTO.getAddress().getCep(), clientTO.getAddress().getNumber(), clientTO.getAddress().getComplement());
+                AddressEntity persistedAddressEntity = addressRepository.save(addressEntity);
+                ClientEntity clientEntity = new ClientEntity(clientTO.getName(), doc, "ATIVO", clientTO.getEmail(), persistedAddressEntity);
                 log.info("Persistindo novo cliente: {}", clientEntity.toString());
-                repository.save(clientEntity);
+                clientRepository.save(clientEntity);
             }
             else {
                 log.warn("Cliente com documento {} já existe", doc);
@@ -54,9 +59,9 @@ public class SubscriptionFacade implements SubscriptionService {
     @Override
     public void delete(String document) {
         try{
-            ClientEntity clientPersisted = repository.findByDocument(document);
+            ClientEntity clientPersisted = clientRepository.findByDocument(document);
             if (clientPersisted !=null){
-                repository.delete(clientPersisted);
+                clientRepository.delete(clientPersisted);
             }
             else {
                 log.warn("Cliente com documento [{}] não encontrado!", document);
@@ -68,18 +73,16 @@ public class SubscriptionFacade implements SubscriptionService {
 
     @Override
     public void update(Long id, ClientTO clientTO) {
-        String doc = clientTO.getDocument();
-        Optional<ClientEntity> clientPersisted = repository.findById(id);
-
-        if (clientPersisted.isPresent()){
-            clientPersisted.get().setName(clientTO.getName());
-            clientPersisted.get().setDocument(clientTO.getDocument());
-            clientPersisted.get().setStatus(clientTO.getStatus());
-            repository.save(clientPersisted.get());
-        }
-        else {
-            log.warn("Cliente com documento {} não esta cadastrado", doc);
-        }
+        clientRepository.findById(id).ifPresent(c -> {
+            c.setName(clientTO.getName());
+            c.setDocument(clientTO.getDocument());
+            c.setStatus(clientTO.getStatus());
+            c.setEmail(clientTO.getEmail());
+            c.getAddressEntity().setCep(clientTO.getAddress().getCep());
+            c.getAddressEntity().setNumber(clientTO.getAddress().getNumber());
+            c.getAddressEntity().setComplement(clientTO.getAddress().getComplement());
+            clientRepository.save(c);
+        });
     }
 
     @Override
@@ -113,7 +116,7 @@ public class SubscriptionFacade implements SubscriptionService {
     private ClientTO findClient(String document) {
         ClientTO clientTO = new ClientTO();
         try{
-            ClientEntity clientPersisted = repository.findByDocument(document);
+            ClientEntity clientPersisted = clientRepository.findByDocument(document);
             if (clientPersisted !=null){
                 clientTO.setName(clientPersisted.getName());
                 clientTO.setDocument(clientPersisted.getDocument());

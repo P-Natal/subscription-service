@@ -2,9 +2,7 @@ package com.natal.subscriptionservice.infrastructure.entity;
 
 import lombok.Getter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Getter
@@ -20,18 +18,29 @@ public class ClientEntity extends EntityClass {
     @Column(nullable = false)
     private String status;
 
+    @Column(nullable = false)
+    private String email;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id")
+    private AddressEntity addressEntity;
+
     public ClientEntity() {
     }
 
-    public ClientEntity(String name, String document, String status) {
+    public ClientEntity(String name, String document, String status, String email, AddressEntity addressEntity) {
         this.name = name;
         this.document = document;
         this.status = status;
+        this.email = email;
+        this.addressEntity = addressEntity;
     }
 
-    public ClientEntity(String name, String document) {
+    public ClientEntity(String name, String document, String email, AddressEntity addressEntity) {
         this.name = name;
         this.document = document;
+        this.email = email;
+        this.addressEntity = addressEntity;
     }
 
     public void setStatus(String status) {
@@ -44,6 +53,22 @@ public class ClientEntity extends EntityClass {
 
     public void setDocument(String document) {
         this.document = document;
+    }
+
+    public AddressEntity getAddressEntity() {
+        return addressEntity;
+    }
+
+    public void setAddressEntity(AddressEntity addressEntity) {
+        this.addressEntity = addressEntity;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
