@@ -13,7 +13,7 @@ create table "public"."client"
     id              bigserial constraint firstkey primary key,
     address_id      bigserial unique not null references address(id),
     name            varchar(50) not null,
-    document        varchar(20) not null,
+    document        varchar(20) unique not null,
     email           varchar(50) not null,
     status          varchar(30) not null,
     registry_date   timestamp not null,

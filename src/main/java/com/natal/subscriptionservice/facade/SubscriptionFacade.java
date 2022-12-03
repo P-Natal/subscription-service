@@ -3,8 +3,11 @@ package com.natal.subscriptionservice.facade;
 import com.natal.subscriptionservice.communication.CreateClientEligibilityTO;
 import com.natal.subscriptionservice.communication.EligibilityClient;
 import com.natal.subscriptionservice.communication.EligibilityResponse;
+import com.natal.subscriptionservice.controller.dto.AddressTO;
 import com.natal.subscriptionservice.controller.dto.ClientEligibilityTO;
+import com.natal.subscriptionservice.controller.dto.ClientResponseTO;
 import com.natal.subscriptionservice.controller.dto.ClientTO;
+import com.natal.subscriptionservice.exception.ClientNotFoundException;
 import com.natal.subscriptionservice.infrastructure.entity.AddressEntity;
 import com.natal.subscriptionservice.infrastructure.entity.ClientEntity;
 import com.natal.subscriptionservice.infrastructure.repository.AddressRepository;
@@ -30,21 +33,22 @@ public class SubscriptionFacade implements SubscriptionService {
     private EligibilityClient eligibilityClient;
 
     @Override
-    public void create(ClientTO clientTO) {
+    public Long create(ClientTO clientTO) {
         String doc = clientTO.getDocument();
 
 //        if (eligibilityClient.getEligibility(doc).isEligible()){
             ClientTO existingClient = findClient(doc);
             if(existingClient==null){
                 AddressEntity addressEntity = new AddressEntity(clientTO.getAddress().getCep(), clientTO.getAddress().getNumber(), clientTO.getAddress().getComplement());
-                AddressEntity persistedAddressEntity = addressRepository.save(addressEntity);
-                ClientEntity clientEntity = new ClientEntity(clientTO.getName(), doc, "ATIVO", clientTO.getEmail(), persistedAddressEntity);
-                log.info("Persistindo novo cliente: {}", clientEntity.toString());
+                ClientEntity clientEntity = new ClientEntity(clientTO.getName(), doc, "ATIVO", clientTO.getEmail(), addressEntity);
+                log.info("Persistindo novo cliente: {}", clientEntity);
                 clientRepository.save(clientEntity);
+                return clientEntity.getId();
             }
             else {
                 log.warn("Cliente com documento {} já existe", doc);
             }
+            return null;
 //        }
 //        else {
 //            log.warn("Cliente com documento {} não está elegível para cadastro", doc);
@@ -52,8 +56,10 @@ public class SubscriptionFacade implements SubscriptionService {
     }
 
     @Override
-    public ClientTO getClientByDocument(String document) {
-        return findClient(document);
+    public ClientResponseTO getClientByDocument(String document) {
+        ClientEntity entity = clientRepository.findByDocument(document);
+        AddressTO addressTO = new AddressTO(entity.getAddressEntity().getCep(), entity.getAddressEntity().getNumber(), entity.getAddressEntity().getComplement());
+        return new ClientResponseTO(entity.getName(), entity.getDocument(), entity.getStatus(), addressTO, entity.getId(), entity.getRegistryDate(), entity.getLastUpdate());
     }
 
     @Override
@@ -72,17 +78,22 @@ public class SubscriptionFacade implements SubscriptionService {
     }
 
     @Override
-    public void update(Long id, ClientTO clientTO) {
-        clientRepository.findById(id).ifPresent(c -> {
-            c.setName(clientTO.getName());
-            c.setDocument(clientTO.getDocument());
-            c.setStatus(clientTO.getStatus());
-            c.setEmail(clientTO.getEmail());
-            c.getAddressEntity().setCep(clientTO.getAddress().getCep());
-            c.getAddressEntity().setNumber(clientTO.getAddress().getNumber());
-            c.getAddressEntity().setComplement(clientTO.getAddress().getComplement());
-            clientRepository.save(c);
-        });
+    public ClientResponseTO update(Long id, ClientTO clientTO) {
+        ClientResponseTO response = null;
+        Optional<ClientEntity> c = clientRepository.findById(id);
+        if(c.isPresent()) {
+            c.get().setName(clientTO.getName());
+            c.get().setDocument(clientTO.getDocument());
+            c.get().setStatus(clientTO.getStatus());
+            c.get().setEmail(clientTO.getEmail());
+            c.get().getAddressEntity().setCep(clientTO.getAddress().getCep());
+            c.get().getAddressEntity().setNumber(clientTO.getAddress().getNumber());
+            c.get().getAddressEntity().setComplement(clientTO.getAddress().getComplement());
+            ClientEntity entity = clientRepository.save(c.get());
+            AddressTO addressTO = new AddressTO(entity.getAddressEntity().getCep(), entity.getAddressEntity().getNumber(), entity.getAddressEntity().getComplement());
+            response = new ClientResponseTO(entity.getName(), entity.getDocument(), entity.getStatus(), addressTO, entity.getId(), entity.getRegistryDate(), entity.getLastUpdate());
+        }
+        return response;
     }
 
     @Override
