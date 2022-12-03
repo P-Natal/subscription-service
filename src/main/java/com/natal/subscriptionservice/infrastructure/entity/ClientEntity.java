@@ -21,7 +21,7 @@ public class ClientEntity extends EntityClass {
     @Column(nullable = false)
     private String email;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade=CascadeType.PERSIST)
     @JoinColumn(name = "address_id")
     private AddressEntity addressEntity;
 

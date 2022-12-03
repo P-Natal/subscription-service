@@ -7,7 +7,7 @@ import com.natal.subscriptionservice.controller.dto.AddressTO;
 import com.natal.subscriptionservice.controller.dto.ClientEligibilityTO;
 import com.natal.subscriptionservice.controller.dto.ClientResponseTO;
 import com.natal.subscriptionservice.controller.dto.ClientTO;
-import com.natal.subscriptionservice.exception.ClientNotFoundException;
+import com.natal.subscriptionservice.exception.NotFoundException;
 import com.natal.subscriptionservice.infrastructure.entity.AddressEntity;
 import com.natal.subscriptionservice.infrastructure.entity.ClientEntity;
 import com.natal.subscriptionservice.infrastructure.repository.AddressRepository;
@@ -40,7 +40,6 @@ public class SubscriptionFacade implements SubscriptionService {
             ClientTO existingClient = findClient(doc);
             if(existingClient==null){
                 AddressEntity addressEntity = new AddressEntity(clientTO.getAddress().getCep(), clientTO.getAddress().getNumber(), clientTO.getAddress().getComplement());
-                addressRepository.save(addressEntity);
                 ClientEntity clientEntity = new ClientEntity(clientTO.getName(), doc, "ATIVO", clientTO.getEmail(), addressEntity);
                 log.info("Persistindo novo cliente: {}", clientEntity);
                 clientRepository.save(clientEntity);
@@ -57,8 +56,11 @@ public class SubscriptionFacade implements SubscriptionService {
     }
 
     @Override
-    public ClientResponseTO getClientByDocument(String document) {
+    public ClientResponseTO getClientByDocument(String document) throws NotFoundException {
         ClientEntity entity = clientRepository.findByDocument(document);
+        if (entity==null){
+            throw new NotFoundException("Client with document "+document+" Not Found");
+        }
         AddressTO addressTO = new AddressTO(entity.getAddressEntity().getCep(), entity.getAddressEntity().getNumber(), entity.getAddressEntity().getComplement());
         return new ClientResponseTO(entity.getName(), entity.getDocument(), entity.getStatus(), addressTO, entity.getId(), entity.getRegistryDate(), entity.getLastUpdate());
     }
@@ -79,7 +81,7 @@ public class SubscriptionFacade implements SubscriptionService {
     }
 
     @Override
-    public ClientResponseTO update(Long id, ClientTO clientTO) {
+    public ClientResponseTO update(Long id, ClientTO clientTO) throws NotFoundException {
         ClientResponseTO response = null;
         Optional<ClientEntity> c = clientRepository.findById(id);
         if(c.isPresent()) {
@@ -93,6 +95,9 @@ public class SubscriptionFacade implements SubscriptionService {
             ClientEntity entity = clientRepository.save(c.get());
             AddressTO addressTO = new AddressTO(entity.getAddressEntity().getCep(), entity.getAddressEntity().getNumber(), entity.getAddressEntity().getComplement());
             response = new ClientResponseTO(entity.getName(), entity.getDocument(), entity.getStatus(), addressTO, entity.getId(), entity.getRegistryDate(), entity.getLastUpdate());
+        }
+        else {
+            throw new NotFoundException("Client with id "+id+" Not Found");
         }
         return response;
     }

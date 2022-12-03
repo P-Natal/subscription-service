@@ -3,9 +3,8 @@ package com.natal.subscriptionservice.controller;
 import com.natal.subscriptionservice.controller.dto.ClientEligibilityTO;
 import com.natal.subscriptionservice.controller.dto.ClientResponseTO;
 import com.natal.subscriptionservice.controller.dto.ClientTO;
-import com.natal.subscriptionservice.exception.ClientNotFoundException;
+import com.natal.subscriptionservice.exception.NotFoundException;
 import com.natal.subscriptionservice.service.SubscriptionService;
-import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,8 +21,16 @@ public class SubscriptionController {
 
     @GetMapping("/{document}")
     public ResponseEntity<ClientResponseTO> get(@PathVariable("document") String document){
-        ClientResponseTO response = subscriptionService.getClientByDocument(document);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        try{
+            ClientResponseTO response = subscriptionService.getClientByDocument(document);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch (NotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping
@@ -33,15 +40,28 @@ public class SubscriptionController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ClientResponseTO> update(@PathVariable("id") Long id, @RequestBody ClientTO clientTO) throws ClientNotFoundException {
-        ClientResponseTO response = subscriptionService.update(id, clientTO);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<ClientResponseTO> update(@PathVariable("id") Long id, @RequestBody ClientTO clientTO) {
+        try{
+            ClientResponseTO response = subscriptionService.update(id, clientTO);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch (NotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("/{document}")
     public ResponseEntity<String> delete(@PathVariable("document") String document){
-        subscriptionService.delete(document);
-        return new ResponseEntity<>("Done", HttpStatus.OK);
+        try {
+            subscriptionService.delete(document);
+            return new ResponseEntity<>("Done", HttpStatus.OK);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/{document}/eligibility")
