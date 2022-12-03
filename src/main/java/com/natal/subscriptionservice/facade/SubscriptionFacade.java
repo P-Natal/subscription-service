@@ -40,6 +40,7 @@ public class SubscriptionFacade implements SubscriptionService {
             ClientTO existingClient = findClient(doc);
             if(existingClient==null){
                 AddressEntity addressEntity = new AddressEntity(clientTO.getAddress().getCep(), clientTO.getAddress().getNumber(), clientTO.getAddress().getComplement());
+                addressRepository.save(addressEntity);
                 ClientEntity clientEntity = new ClientEntity(clientTO.getName(), doc, "ATIVO", clientTO.getEmail(), addressEntity);
                 log.info("Persistindo novo cliente: {}", clientEntity);
                 clientRepository.save(clientEntity);

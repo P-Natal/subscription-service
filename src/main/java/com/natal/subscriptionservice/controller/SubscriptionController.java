@@ -8,6 +8,8 @@ import com.natal.subscriptionservice.service.SubscriptionService;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -19,25 +21,27 @@ public class SubscriptionController {
     private SubscriptionService subscriptionService;
 
     @GetMapping("/{document}")
-    public ClientResponseTO get(@PathVariable("document") String document){
-        return subscriptionService.getClientByDocument(document);
+    public ResponseEntity<ClientResponseTO> get(@PathVariable("document") String document){
+        ClientResponseTO response = subscriptionService.getClientByDocument(document);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping
-    public Long create(@RequestBody ClientTO clientTO){
-        log.info("Recebendo request de criação de cliente: {}", clientTO.toString());
-        return subscriptionService.create(clientTO);
+    public ResponseEntity<Long> create(@RequestBody ClientTO clientTO){
+        Long id = subscriptionService.create(clientTO);
+        return new ResponseEntity<>(id, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
-    public ClientResponseTO update(@PathVariable("id") Long id, @RequestBody ClientTO clientTO) throws ClientNotFoundException {
-        log.info("Recebendo request de atualizacao de cliente: {}", clientTO.toString());
-        return subscriptionService.update(id, clientTO);
+    public ResponseEntity<ClientResponseTO> update(@PathVariable("id") Long id, @RequestBody ClientTO clientTO) throws ClientNotFoundException {
+        ClientResponseTO response = subscriptionService.update(id, clientTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{document}")
-    public void delete(@PathVariable("document") String document){
+    public ResponseEntity<String> delete(@PathVariable("document") String document){
         subscriptionService.delete(document);
+        return new ResponseEntity<>("Done", HttpStatus.OK);
     }
 
     @GetMapping("/{document}/eligibility")
