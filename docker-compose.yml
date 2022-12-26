@@ -1,6 +1,6 @@
 version: '3'
 services:
-  postgres:
+  postgres-subscription:
     image: postgres:13.3-alpine
     hostname: postgres
     ports:
@@ -10,6 +10,8 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USERNAME=postgres
     container_name: postgres_subscription_service
+    networks:
+      - sales-order-service_localnet
 
   subscription-service:
     image: natal/subscription-service:1.0
@@ -17,4 +19,10 @@ services:
       - "8082:8082"
     container_name: subscription_service
     depends_on:
-      - postgres
+      - postgres-subscription
+    networks:
+      - sales-order-service_localnet
+
+networks:
+  sales-order-service_localnet:
+    external: true
