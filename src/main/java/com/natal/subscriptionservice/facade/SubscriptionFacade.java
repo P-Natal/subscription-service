@@ -7,6 +7,7 @@ import com.natal.subscriptionservice.controller.dto.AddressTO;
 import com.natal.subscriptionservice.controller.dto.ClientEligibilityTO;
 import com.natal.subscriptionservice.controller.dto.ClientResponseTO;
 import com.natal.subscriptionservice.controller.dto.ClientTO;
+import com.natal.subscriptionservice.exception.DuplicatedClientException;
 import com.natal.subscriptionservice.exception.NotFoundException;
 import com.natal.subscriptionservice.infrastructure.entity.AddressEntity;
 import com.natal.subscriptionservice.infrastructure.entity.ClientEntity;
@@ -33,7 +34,7 @@ public class SubscriptionFacade implements SubscriptionService {
     private EligibilityClient eligibilityClient;
 
     @Override
-    public Long create(ClientTO clientTO) {
+    public ClientResponseTO create(ClientTO clientTO) {
         String doc = clientTO.getDocument();
 
 //        if (eligibilityClient.getEligibility(doc).isEligible()){
@@ -42,16 +43,16 @@ public class SubscriptionFacade implements SubscriptionService {
                 AddressEntity addressEntity = new AddressEntity(clientTO.getAddress().getCep(), clientTO.getAddress().getNumber(), clientTO.getAddress().getComplement());
                 ClientEntity clientEntity = new ClientEntity(clientTO.getName(), doc, "ATIVO", clientTO.getEmail(), addressEntity);
                 log.info("Persistindo novo cliente: {}", clientEntity);
-                clientRepository.save(clientEntity);
-                return clientEntity.getId();
+                ClientEntity persistedClient = clientRepository.save(clientEntity);
+                AddressTO addressTO = new AddressTO(persistedClient.getAddressEntity().getCep(), persistedClient.getAddressEntity().getNumber(), persistedClient.getAddressEntity().getComplement());
+                return new ClientResponseTO(persistedClient.getName(), persistedClient.getDocument(), persistedClient.getStatus(), addressTO, persistedClient.getId(), persistedClient.getRegistryDate(), persistedClient.getLastUpdate());
             }
             else {
-                log.warn("Cliente com documento {} já existe", doc);
+                throw new DuplicatedClientException("Cliente com documento " + clientTO.getDocument() + " ja existe");
             }
-            return null;
 //        }
 //        else {
-//            log.warn("Cliente com documento {} não está elegível para cadastro", doc);
+//            log.warn("Cliente com documento {} não esta elegível para cadastro", doc);
 //        }
     }
 
@@ -66,17 +67,17 @@ public class SubscriptionFacade implements SubscriptionService {
     }
 
     @Override
-    public void delete(String document) {
+    public void delete(Long id) {
         try{
-            ClientEntity clientPersisted = clientRepository.findByDocument(document);
-            if (clientPersisted !=null){
-                clientRepository.delete(clientPersisted);
+            Optional<ClientEntity> clientPersisted = clientRepository.findById(id);
+            if (clientPersisted.isPresent()){
+                clientRepository.delete(clientPersisted.get());
             }
             else {
-                log.warn("Cliente com documento [{}] não encontrado!", document);
+                log.warn("Cliente com ID [{}] nao encontrado!", id);
             }
         }catch (Exception e){
-            log.error("Falha ao deletar cliente com documento: {} ", document, e);
+            log.error("Falha ao deletar cliente com ID: {} ", id, e);
         }
     }
 

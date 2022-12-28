@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface SubscriptionService {
-    Long create(ClientTO clientTO);
+    ClientResponseTO create(ClientTO clientTO);
     ClientResponseTO getClientByDocument(String document) throws NotFoundException;
-    void delete(String document);
+    void delete(Long id);
     ClientResponseTO update(Long id, ClientTO clientTO) throws NotFoundException;
     ClientEligibilityTO getClientEligibilityByDocument(String document);
     void setClientEligibility(String document, ClientEligibilityTO clientEligibilityTO);

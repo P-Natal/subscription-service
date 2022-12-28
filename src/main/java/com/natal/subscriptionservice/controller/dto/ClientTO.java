@@ -2,19 +2,27 @@ package com.natal.subscriptionservice.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.br.CPF;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 public class ClientTO {
     @JsonProperty
+    @NotBlank
     private String name;
 
     @JsonProperty
+    @CPF
     private String document;
 
     @JsonProperty(required = false)
     private String status;
 
-    @JsonProperty(required = false)
+    @JsonProperty
+    @Email
     private String email;
 
     @JsonProperty(required = true)

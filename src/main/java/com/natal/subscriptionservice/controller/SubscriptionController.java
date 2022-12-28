@@ -3,13 +3,19 @@ package com.natal.subscriptionservice.controller;
 import com.natal.subscriptionservice.controller.dto.ClientEligibilityTO;
 import com.natal.subscriptionservice.controller.dto.ClientResponseTO;
 import com.natal.subscriptionservice.controller.dto.ClientTO;
+import com.natal.subscriptionservice.controller.validator.CpfValidator;
+import com.natal.subscriptionservice.exception.DuplicatedClientException;
 import com.natal.subscriptionservice.exception.NotFoundException;
 import com.natal.subscriptionservice.service.SubscriptionService;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.br.CPF;
+import org.hibernate.validator.internal.constraintvalidators.hv.br.CPFValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Slf4j
 @RestController
@@ -22,6 +28,9 @@ public class SubscriptionController {
     @GetMapping("/{document}")
     public ResponseEntity<ClientResponseTO> get(@PathVariable("document") String document){
         try{
+            if (!CpfValidator.isValid(document)){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             ClientResponseTO response = subscriptionService.getClientByDocument(document);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -34,13 +43,19 @@ public class SubscriptionController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> create(@RequestBody ClientTO clientTO){
-        Long id = subscriptionService.create(clientTO);
-        return new ResponseEntity<>(id, HttpStatus.CREATED);
+    public ResponseEntity<ClientResponseTO> create(@Valid @RequestBody ClientTO clientTO){
+        try{
+            ClientResponseTO clientResponseTO = subscriptionService.create(clientTO);
+            return new ResponseEntity<>(clientResponseTO, HttpStatus.CREATED);
+        }
+        catch (DuplicatedClientException e) {
+            log.warn(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ClientResponseTO> update(@PathVariable("id") Long id, @RequestBody ClientTO clientTO) {
+    public ResponseEntity<ClientResponseTO> update(@PathVariable("id") Long id, @Valid @RequestBody ClientTO clientTO) {
         try{
             ClientResponseTO response = subscriptionService.update(id, clientTO);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -53,11 +68,11 @@ public class SubscriptionController {
         }
     }
 
-    @DeleteMapping("/{document}")
-    public ResponseEntity<String> delete(@PathVariable("document") String document){
+    @DeleteMapping("/{id}")
+    public ResponseEntity delete(@CPF @PathVariable("id") Long id){
         try {
-            subscriptionService.delete(document);
-            return new ResponseEntity<>("Done", HttpStatus.OK);
+            subscriptionService.delete(id);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
         catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -65,12 +80,12 @@ public class SubscriptionController {
     }
 
     @GetMapping("/{document}/eligibility")
-    public ClientEligibilityTO getEligibility(@PathVariable("document") String document){
+    public ClientEligibilityTO getEligibility(@CPF @PathVariable("document") String document){
         return subscriptionService.getClientEligibilityByDocument(document);
     }
 
     @PutMapping("/{document}/eligibility")
-    public void setEligibility(@PathVariable("document") String document, @RequestBody ClientEligibilityTO clientEligibilityTO){
+    public void setEligibility(@CPF @PathVariable("document") String document, @RequestBody ClientEligibilityTO clientEligibilityTO){
         subscriptionService.setClientEligibility(document, clientEligibilityTO);
     }
 }

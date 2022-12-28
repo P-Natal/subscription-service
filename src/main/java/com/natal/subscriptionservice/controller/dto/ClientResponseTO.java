@@ -11,11 +11,11 @@ public class ClientResponseTO extends ClientTO {
     private Long id;
 
     @JsonProperty
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-mm-dd HH-mm-ss")
     private Date registryDate;
 
     @JsonProperty
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-mm-dd HH-mm-ss")
     private Date lastUpdate;
 
     public ClientResponseTO(String name, String document, String status, AddressTO address, Long id, Date registryDate, Date lastUpdate) {

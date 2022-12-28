@@ -11,7 +11,7 @@ start-db:
 
 build-image:
 	mvn clean package
-	docker build -t natal/subscription-service:1.0 .
+	docker build -t pedronatal/subscription-service:1.0 .
 
 build-run: build-image
 	docker-compose up

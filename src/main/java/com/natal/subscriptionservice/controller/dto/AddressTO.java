@@ -2,15 +2,20 @@ package com.natal.subscriptionservice.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 public class AddressTO {
 
     @JsonProperty
+    @NotBlank
     private String cep;
 
     @JsonProperty
+    @NotNull
     private int number;
 
-    @JsonProperty
+    @JsonProperty(required = false)
     private String complement;
 
     public AddressTO() {
