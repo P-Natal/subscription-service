@@ -119,15 +119,17 @@ public class SubscriptionFacade implements SubscriptionService {
     }
 
     @Override
-    public void setClientEligibility(String document, ClientEligibilityTO clientEligibilityTO) {
+    public ClientEligibilityTO setClientEligibility(String document, ClientEligibilityTO clientEligibilityTO) {
         CreateClientEligibilityTO createClientEligibilityTO
                 = new CreateClientEligibilityTO(document, clientEligibilityTO.isEligible(), clientEligibilityTO.getReason());
         EligibilityResponse response = eligibilityClient.setEligibility(createClientEligibilityTO);
         if (response == null){
             log.error("Falha na criação de elegibilidade para cliente com document {} e body {}", document, clientEligibilityTO);
+            return null;
         }
         else {
             log.info("Resposta da criação de elegibilidade para cliente com documento {}: {}", document, response);
+            return new ClientEligibilityTO(response.isEligible(), response.getReason());
         }
     }
 

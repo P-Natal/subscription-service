@@ -13,5 +13,5 @@ public interface SubscriptionService {
     void delete(Long id);
     ClientResponseTO update(Long id, ClientTO clientTO) throws NotFoundException;
     ClientEligibilityTO getClientEligibilityByDocument(String document);
-    void setClientEligibility(String document, ClientEligibilityTO clientEligibilityTO);
+    ClientEligibilityTO setClientEligibility(String document, ClientEligibilityTO clientEligibilityTO);
 }

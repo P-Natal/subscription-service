@@ -80,12 +80,19 @@ public class SubscriptionController {
     }
 
     @GetMapping("/{document}/eligibility")
-    public ClientEligibilityTO getEligibility(@CPF @PathVariable("document") String document){
-        return subscriptionService.getClientEligibilityByDocument(document);
+    public ResponseEntity<ClientEligibilityTO> getEligibility(@PathVariable("document") String document){
+        if (!CpfValidator.isValid(document)){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(subscriptionService.getClientEligibilityByDocument(document), HttpStatus.OK);
     }
 
     @PutMapping("/{document}/eligibility")
-    public void setEligibility(@CPF @PathVariable("document") String document, @RequestBody ClientEligibilityTO clientEligibilityTO){
-        subscriptionService.setClientEligibility(document, clientEligibilityTO);
+    public ResponseEntity<ClientEligibilityTO> setEligibility(@CPF @PathVariable("document") String document, @RequestBody ClientEligibilityTO clientEligibilityTO){
+        ClientEligibilityTO eligibilityTO = subscriptionService.setClientEligibility(document, clientEligibilityTO);
+        if (eligibilityTO==null){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(eligibilityTO, HttpStatus.CREATED);
     }
 }
