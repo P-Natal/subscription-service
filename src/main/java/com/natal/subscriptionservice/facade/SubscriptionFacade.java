@@ -3,6 +3,7 @@ package com.natal.subscriptionservice.facade;
 import com.natal.subscriptionservice.communication.CreateClientEligibilityTO;
 import com.natal.subscriptionservice.communication.EligibilityClient;
 import com.natal.subscriptionservice.communication.EligibilityResponse;
+import com.natal.subscriptionservice.communication.SalesOrderClient;
 import com.natal.subscriptionservice.controller.dto.AddressTO;
 import com.natal.subscriptionservice.controller.dto.ClientEligibilityTO;
 import com.natal.subscriptionservice.controller.dto.ClientResponseTO;
@@ -32,6 +33,9 @@ public class SubscriptionFacade implements SubscriptionService {
 
     @Autowired
     private EligibilityClient eligibilityClient;
+
+    @Autowired
+    private SalesOrderClient salesOrderClient;
 
     @Override
     public ClientResponseTO create(ClientTO clientTO) {
@@ -71,6 +75,10 @@ public class SubscriptionFacade implements SubscriptionService {
         try{
             Optional<ClientEntity> clientPersisted = clientRepository.findById(id);
             if (clientPersisted.isPresent()){
+
+                cancelPendingOrders(clientPersisted.get().getDocument());
+                clearDocumentEligibility(clientPersisted.get().getDocument());
+
                 clientRepository.delete(clientPersisted.get());
             }
             else {
@@ -78,7 +86,16 @@ public class SubscriptionFacade implements SubscriptionService {
             }
         }catch (Exception e){
             log.error("Falha ao deletar cliente com ID: {} ", id, e);
+            throw e;
         }
+    }
+
+    private void clearDocumentEligibility(String document) {
+        eligibilityClient.setEligibility(new CreateClientEligibilityTO(document, true, ""));
+    }
+
+    private void cancelPendingOrders(String document) {
+        salesOrderClient.cancelOrdersByClient(document);
     }
 
     @Override

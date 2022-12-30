@@ -18,3 +18,6 @@ spring:
 
 eligibility:
   host: eligibility-service:8081
+
+sales-order:
+  host: sales-order-service:8083
