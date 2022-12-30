@@ -106,6 +106,14 @@ public class SubscriptionFacade implements SubscriptionService {
     @Override
     public ClientEligibilityTO getClientEligibilityByDocument(String document) {
         ClientEligibilityTO clientEligibilityTO = new ClientEligibilityTO();
+
+        ClientEntity clientEntity = clientRepository.findByDocument(document);
+        if(clientEntity==null){
+            clientEligibilityTO.setEligible(false);
+            clientEligibilityTO.setReason("Cliente inexistente");
+            return clientEligibilityTO;
+        }
+
         log.info("Buscando elegibilidade de cliente com documento {}", document);
         EligibilityResponse response = eligibilityClient.getEligibility(document);
         if (response == null){
