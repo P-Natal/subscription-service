@@ -31,10 +31,11 @@ public class ClientTO {
     public ClientTO() {
     }
 
-    public ClientTO(String name, String document, String status, AddressTO address) {
+    public ClientTO(String name, String document, String status, String email, AddressTO address) {
         this.name = name;
         this.document = document;
         this.status = status;
+        this.email = email;
         this.address = address;
     }
 }

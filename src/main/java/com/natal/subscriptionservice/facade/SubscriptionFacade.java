@@ -49,7 +49,7 @@ public class SubscriptionFacade implements SubscriptionService {
                 log.info("Persistindo novo cliente: {}", clientEntity);
                 ClientEntity persistedClient = clientRepository.save(clientEntity);
                 AddressTO addressTO = new AddressTO(persistedClient.getAddressEntity().getCep(), persistedClient.getAddressEntity().getNumber(), persistedClient.getAddressEntity().getComplement());
-                return new ClientResponseTO(persistedClient.getName(), persistedClient.getDocument(), persistedClient.getStatus(), addressTO, persistedClient.getId(), persistedClient.getRegistryDate(), persistedClient.getLastUpdate());
+                return new ClientResponseTO(persistedClient.getName(), persistedClient.getDocument(), persistedClient.getStatus(), persistedClient.getEmail(), addressTO, persistedClient.getId(), persistedClient.getRegistryDate(), persistedClient.getLastUpdate());
             }
             else {
                 throw new DuplicatedClientException("Cliente com documento " + clientTO.getDocument() + " ja existe");
@@ -67,7 +67,7 @@ public class SubscriptionFacade implements SubscriptionService {
             throw new NotFoundException("Client with document "+document+" Not Found");
         }
         AddressTO addressTO = new AddressTO(entity.getAddressEntity().getCep(), entity.getAddressEntity().getNumber(), entity.getAddressEntity().getComplement());
-        return new ClientResponseTO(entity.getName(), entity.getDocument(), entity.getStatus(), addressTO, entity.getId(), entity.getRegistryDate(), entity.getLastUpdate());
+        return new ClientResponseTO(entity.getName(), entity.getDocument(), entity.getStatus(), entity.getEmail(), addressTO, entity.getId(), entity.getRegistryDate(), entity.getLastUpdate());
     }
 
     @Override
@@ -112,7 +112,7 @@ public class SubscriptionFacade implements SubscriptionService {
             c.get().getAddressEntity().setComplement(clientTO.getAddress().getComplement());
             ClientEntity entity = clientRepository.save(c.get());
             AddressTO addressTO = new AddressTO(entity.getAddressEntity().getCep(), entity.getAddressEntity().getNumber(), entity.getAddressEntity().getComplement());
-            response = new ClientResponseTO(entity.getName(), entity.getDocument(), entity.getStatus(), addressTO, entity.getId(), entity.getRegistryDate(), entity.getLastUpdate());
+            response = new ClientResponseTO(entity.getName(), entity.getDocument(), entity.getStatus(), entity.getEmail(), addressTO, entity.getId(), entity.getRegistryDate(), entity.getLastUpdate());
         }
         else {
             throw new NotFoundException("Client with id "+id+" Not Found");
